@@ -1,0 +1,18 @@
+name: Deploy Infra
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull infra repo and restart containers
+        run: |
+          cd /home/server/order-platform-infra
+          git pull origin main
+          docker compose pull
+          docker compose up -d --remove-orphans
+          docker image prune -f
