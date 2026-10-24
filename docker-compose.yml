@@ -29,8 +29,6 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: Host=postgres-inventory;Port=5432;Database=${INVENTORY_POSTGRES_DB};Username=${INVENTORY_POSTGRES_USER};Password=${INVENTORY_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
-    ports:
-      - "8080:8080"
     networks:
       - backend
 
@@ -69,7 +67,7 @@ services:
       # URL для связи с InventoryService (по имени контейнера внутри сети Docker)
       InventoryService__BaseUrl: http://inventory-api:8080
     ports:
-      - "8081:8080"
+      - "8080:8080"
     networks:
       - backend
 
