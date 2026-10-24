@@ -1,33 +1,82 @@
 services:
-  postgres:
+  # --- INVENTORY SERVICE ---
+  postgres-inventory:
     image: postgres:17-alpine
     container_name: inventory-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${INVENTORY_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${INVENTORY_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${INVENTORY_POSTGRES_DB}
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${INVENTORY_POSTGRES_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - inventory_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${INVENTORY_POSTGRES_USER} -d ${INVENTORY_POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - backend
 
-  api:
+  inventory-api:
     image: ghcr.io/sergiuscain/inventoryservice:latest
     container_name: inventory-api
     depends_on:
-      postgres:
+      postgres-inventory:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      ASPNETCORE_HTTP_PORTS: ${ASPNETCORE_HTTP_PORTS}
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: Host=postgres-inventory;Port=5432;Database=${INVENTORY_POSTGRES_DB};Username=${INVENTORY_POSTGRES_USER};Password=${INVENTORY_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
     ports:
       - "8080:8080"
+    networks:
+      - backend
+
+  # --- ORDER SERVICE ---
+  postgres-order:
+    image: postgres:17-alpine
+    container_name: order-postgres
+    environment:
+      POSTGRES_USER: ${ORDER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ORDER_POSTGRES_DB}
+    ports:
+      - "${ORDER_POSTGRES_PORT}:5432"
+    volumes:
+      - order_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_POSTGRES_USER} -d ${ORDER_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  order-api:
+    image: ghcr.io/sergiuscain/orderservice:latest
+    container_name: order-api
+    depends_on:
+      postgres-order:
+        condition: service_healthy
+      inventory-api:
+        condition: service_started # OrderService зависит от Inventory для проверки остатков
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: Host=postgres-order;Port=5432;Database=${ORDER_POSTGRES_DB};Username=${ORDER_POSTGRES_USER};Password=${ORDER_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+      # URL для связи с InventoryService (по имени контейнера внутри сети Docker)
+      InventoryService__BaseUrl: http://inventory-api:8080
+    ports:
+      - "8081:8080"
+    networks:
+      - backend
 
 volumes:
-  postgres_data:
+  inventory_postgres_data:
+  order_postgres_data:
+
+networks:
+  backend:
+    driver: bridge
