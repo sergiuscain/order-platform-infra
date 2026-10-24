@@ -1,0 +1,87 @@
+services:
+  # --- INVENTORY SERVICE ---
+  postgres-inventory:
+    image: postgres:17-alpine
+    container_name: inventory-postgres
+    environment:
+      POSTGRES_USER: ${INVENTORY_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${INVENTORY_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${INVENTORY_POSTGRES_DB}
+    volumes:
+      - inventory_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${INVENTORY_POSTGRES_USER} -d ${INVENTORY_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  inventory-api:
+    build:
+      context: ../InventoryService
+      dockerfile: Dockerfile
+    image: local/inventoryservice:test
+    container_name: inventory-api
+    depends_on:
+      postgres-inventory:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: Host=postgres-inventory;Port=5432;Database=${INVENTORY_POSTGRES_DB};Username=${INVENTORY_POSTGRES_USER};Password=${INVENTORY_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+    networks:
+      - backend
+
+  # --- ORDER SERVICE ---
+  postgres-order:
+    image: postgres:17-alpine
+    container_name: order-postgres
+    environment:
+      POSTGRES_USER: ${ORDER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${ORDER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${ORDER_POSTGRES_DB}
+    volumes:
+      - order_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ORDER_POSTGRES_USER} -d ${ORDER_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  order-api:
+    build:
+      context: ../OrderService
+      dockerfile: OrderService/Dockerfile
+    image: local/orderservice:test
+    container_name: order-api
+    depends_on:
+      postgres-order:
+        condition: service_healthy
+      inventory-api:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: Host=postgres-order;Port=5432;Database=${ORDER_POSTGRES_DB};Username=${ORDER_POSTGRES_USER};Password=${ORDER_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+      InventoryService__BaseUrl: http://inventory-api:8080
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+
+volumes:
+  inventory_postgres_data:
+  order_postgres_data:
+
+networks:
+  backend:
+    driver: bridge
+
+#Данный компос файл нужен для теста изменений до коммита. Он собирает контейнеры из докерфайлов и репозиториев, изменения которых ещё не были отправленны в гит
+#Репозитории с сервисами должны лежать рядом с этим репозиторием. 
+#Для запуска перейдите в текущую директорию и запустите компос, выполнив команды ниже:
+#cd repos/order-platform-infra
+#docker compose -f docker-compose.test.yml up --build -d
