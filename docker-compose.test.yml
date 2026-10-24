@@ -30,6 +30,8 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: Host=postgres-inventory;Port=5432;Database=${INVENTORY_POSTGRES_DB};Username=${INVENTORY_POSTGRES_USER};Password=${INVENTORY_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+    ports:
+      - "8081:8080"
     networks:
       - backend
 
@@ -81,7 +83,8 @@ networks:
     driver: bridge
 
 #Данный компос файл нужен для теста изменений до коммита. Он собирает контейнеры из докерфайлов и репозиториев, изменения которых ещё не были отправленны в гит
-#Репозитории с сервисами должны лежать рядом с этим репозиторием. 
+#Репозитории с сервисами должны лежать рядом с этим репозиторием.
 #Для запуска перейдите в текущую директорию и запустите компос, выполнив команды ниже:
 #cd repos/order-platform-infra
+#docker compose down
 #docker compose -f docker-compose.test.yml up --build -d
