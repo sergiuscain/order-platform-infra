@@ -1,6 +1,6 @@
 # Progress Log
 ## 23.10.26:
-### Inventory Service 
+### InventoryService 
 Реализовал InventoryService:
 - Настроена база данных PostgreSQL
 - Реализованы сущности `Product` и `Stock` (связь один-к-одному)
@@ -14,3 +14,7 @@
 
 ## 24.10.26:
 ### OrderService
+- Создал простой сервис OrderService без реализации логики.
+- Добавил в него DockerFile и workflow, что бы работал механизм CI
+- Сделал CD через GitHub Actions. Все 4 контейнера развернулись через раннер. 
+(OrderService, InventoryService, две базы данных на postgresql)
