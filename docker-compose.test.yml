@@ -74,9 +74,46 @@ services:
     networks:
       - backend
 
+        # --- AUTH SERVICE ---
+  postgres-auth:
+    image: postgres:17-alpine
+    container_name: auth-postgres
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_POSTGRES_USER} -d ${AUTH_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  auth-api:
+    build:
+      context: ../AuthService
+      dockerfile: AuthService/Dockerfile
+    image: local/authservice:test
+    container_name: auth-api
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__DefaultConnection: Host=postgres-auth;Port=5432;Database=${AUTH_POSTGRES_DB};Username=${AUTH_POSTGRES_USER};Password=${AUTH_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+    ports:
+      - "8082:8080"
+    networks:
+      - backend
+
 volumes:
   inventory_postgres_data:
   order_postgres_data:
+  auth_postgres_data:
 
 networks:
   backend:
