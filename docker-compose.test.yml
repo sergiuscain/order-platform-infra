@@ -30,8 +30,6 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: Host=postgres-inventory;Port=5432;Database=${INVENTORY_POSTGRES_DB};Username=${INVENTORY_POSTGRES_USER};Password=${INVENTORY_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
-    ports:
-      - "8081:8080"
     networks:
       - backend
 
@@ -69,8 +67,6 @@ services:
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: Host=postgres-order;Port=5432;Database=${ORDER_POSTGRES_DB};Username=${ORDER_POSTGRES_USER};Password=${ORDER_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
       InventoryService__BaseUrl: http://inventory-api:8080
-    ports:
-      - "8080:8080"
     networks:
       - backend
 
@@ -107,10 +103,29 @@ services:
       Seed__AdminEmail: ${ADMIN_EMAIL}
       Seed__AdminPassword: ${ADMIN_PASSWORD}
       ConnectionStrings__DefaultConnection: Host=postgres-auth;Port=5432;Database=${AUTH_POSTGRES_DB};Username=${AUTH_POSTGRES_USER};Password=${AUTH_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
-    ports:
-      - "8082:8080"
     networks:
       - backend
+
+  api-gateway:
+      build:
+        context: ../ApiGateway
+        dockerfile: ApiGateway/Dockerfile
+      image: local/apigateway:test
+      container_name: api-gateway
+      depends_on:
+        order-api:
+          condition: service_started
+        inventory-api:
+          condition: service_started
+        auth-api:
+          condition: service_started
+      environment:
+        ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+        ASPNETCORE_HTTP_PORTS: 8080
+      ports:
+        - "8080:8080"
+      networks:
+        - backend
 
 volumes:
   inventory_postgres_data:
