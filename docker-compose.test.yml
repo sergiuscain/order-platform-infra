@@ -104,6 +104,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_HTTP_PORTS: 8080
+      Seed__AdminEmail: ${ADMIN_EMAIL}
+      Seed__AdminPassword: ${ADMIN_PASSWORD}
       ConnectionStrings__DefaultConnection: Host=postgres-auth;Port=5432;Database=${AUTH_POSTGRES_DB};Username=${AUTH_POSTGRES_USER};Password=${AUTH_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
     ports:
       - "8082:8080"
