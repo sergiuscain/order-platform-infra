@@ -144,6 +144,21 @@ services:
     networks:
       - backend
 
+  notification-api:
+    build:
+      context: ../NotificationService
+      dockerfile: NotificationService/Dockerfile
+    image: local/notificationservice:test
+    container_name: notification-api
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTP_PORTS: 8080
+    networks:
+      - backend
+
 volumes:
   inventory_postgres_data:
   order_postgres_data:
