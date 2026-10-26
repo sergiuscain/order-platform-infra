@@ -113,12 +113,12 @@ graph TD
 
 # Структура репозиториев
 ### Проект разделен на независимые репозитории (полирепозиторий):
-  - [order-platform-infra] (текущий) — Docker Compose, конфигурация инфраструктуры, README.
-  - [OrderService]  — сервис заказов (Clean Architecture).
-  - [InventoryService]  — сервис склада (Clean Architecture).
-  - [AuthService]  — сервис аутентификации (Clean Architecture).
-  - [ApiGateway]  — шлюз на YARP.
-  - [NotificationService]  — консьюмер событий.
+  - [order-platform-infra](https://github.com/sergiuscain/order-platform-infra) (текущий) — Docker Compose, конфигурация инфраструктуры, README.
+  - [OrderService](https://github.com/sergiuscain/OrderService)  — сервис заказов (Clean Architecture).
+  - [InventoryService](https://github.com/sergiuscain/InventoryService)  — сервис склада (Clean Architecture).
+  - [AuthService](https://github.com/sergiuscain/AuthService)  — сервис аутентификации (Clean Architecture).
+  - [ApiGateway](https://github.com/sergiuscain/ApiGateway)  — шлюз на YARP.
+  - [NotificationService](https://github.com/sergiuscain/NotificationService)  — консьюмер событий.
 
 # Скриншоты
 <img width="1834" height="1240" alt="{EA590EC0-6FB5-4007-B801-8693D018B15C}" src="https://github.com/user-attachments/assets/bca4a08e-5cb5-494a-8637-2ee29fb10832" />
