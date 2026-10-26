@@ -15,108 +15,64 @@ graph TD
     InventoryService --> DB2[(PostgreSQL<br/>inventory_db)]
     AuthService --> DB3[(PostgreSQL<br/>auth_db)]
 ```
-<h1>Order Platform — Microservices Architecture</h1>
+# Order Platform — Microservices Architecture
 
-<p>Учебный проект, демонстрирующий полноценную микросервисную архитектуру с единой точкой входа, асинхронным обменом сообщениями, разграничением ролей и изолированными базами данных.</p>
+Учебный проект, демонстрирующий полноценную микросервисную архитектуру с единой точкой входа, асинхронным обменом сообщениями, разграничением ролей и изолированными базами данных.
 
-<h2>📐 Архитектура</h2>
+## 📐 Архитектура
 
-<p>Проект построен по принципам Domain-Driven Design (DDD) и Clean Architecture. Каждый сервис изолирован, имеет собственную базу данных и общается с другими сервисами либо синхронно (через HTTP), либо асинхронно (через брокер сообщений).</p>
+Проект построен по принципам Domain-Driven Design (DDD) и Clean Architecture. Каждый сервис изолирован, имеет собственную базу данных и общается с другими сервисами либо синхронно (через HTTP), либо асинхронно (через брокер сообщений).
 
-<h3>Сервисы</h3>
-<table>
-  <thead>
-    <tr>
-      <th>Сервис</th>
-      <th>Порт (внутренний)</th>
-      <th>Зона ответственности</th>
-      <th>База данных</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><b>ApiGateway</b></td>
-      <td>8080 (внешний)</td>
-      <td>Единая точка входа, маршрутизация (YARP), валидация JWT, агрегация Swagger UI.</td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td><b>OrderService</b></td>
-      <td>8080</td>
-      <td>Управление заказами, оркестрация резервирования товаров, публикация событий.</td>
-      <td>order_db</td>
-    </tr>
-    <tr>
-      <td><b>InventoryService</b></td>
-      <td>8080</td>
-      <td>Управление каталогом товаров и складскими остатками (резервы, списание).</td>
-      <td>inventory_db</td>
-    </tr>
-    <tr>
-      <td><b>AuthService</b></td>
-      <td>8080</td>
-      <td>Аутентификация, выдача JWT (Access + Refresh), управление пользователями и ролями.</td>
-      <td>auth_db</td>
-    </tr>
-    <tr>
-      <td><b>NotificationService</b></td>
-      <td>—</td>
-      <td>Асинхронная обработка событий (имитация отправки Email/Push).</td>
-      <td>—</td>
-    </tr>
-    <tr>
-      <td><b>RabbitMQ</b></td>
-      <td>5672 / 15672</td>
-      <td>Брокер сообщений (event-driven).</td>
-      <td>—</td>
-    </tr>
-  </tbody>
-</table>
+### Сервисы
 
-<h2>🛠 Технологический стек</h2>
-<ul>
-  <li><b>Платформа:</b> .NET 10 (C#)</li>
-  <li><b>Фреймворк:</b> ASP.NET Core Web API</li>
-  <li><b>Базы данных:</b> PostgreSQL 17 + Entity Framework Core 10</li>
-  <li><b>API Gateway:</b> YARP (Yet Another Reverse Proxy)</li>
-  <li><b>Брокер сообщений:</b> RabbitMQ + MassTransit 8.4.1</li>
-  <li><b>Аутентификация:</b> JWT (HS256), HttpOnly Cookies, Refresh Tokens</li>
-  <li><b>Архитектурные паттерны:</b> Clean Architecture, CQRS (MediatR), Event-Driven Architecture, Repository/Unit of Work (через EF Core)</li>
-  <li><b>Инфраструктура:</b> Docker, Docker Compose</li>
-</ul>
+| Сервис | Порт (внутренний) | Зона ответственности | База данных |
+|---|---|---|---|
+| **ApiGateway** | 8080 (внешний) | Единая точка входа, маршрутизация (YARP), валидация JWT, агрегация Swagger UI. | — |
+| **OrderService** | 8080 | Управление заказами, оркестрация резервирования товаров, публикация событий. | order_db |
+| **InventoryService** | 8080 | Управление каталогом товаров и складскими остатками (резервы, списание). | inventory_db |
+| **AuthService** | 8080 | Аутентификация, выдача JWT (Access + Refresh), управление пользователями и ролями. | auth_db |
+| **NotificationService** | — | Асинхронная обработка событий (имитация отправки Email/Push). | — |
+| **RabbitMQ** | 5672 / 15672 | Брокер сообщений (event-driven). | — |
 
-<h2>🔄 Ключевые бизнес-потоки</h2>
+##  Технологический стек
 
-<h3>1. Создание заказа (Saga / Orchestration)</h3>
-<ol>
-  <li>Клиент отправляет POST /api/orders через Gateway.</li>
-  <li><b>OrderService</b> валидирует запрос и запрашивает актуальные данные товаров у <b>InventoryService</b>.</li>
-  <li><b>OrderService</b> вызывает <b>InventoryService</b> для резервирования остатков (ReserveStock).</li>
-  <li><b>OrderService</b> сохраняет заказ в БД и публикует событие OrderCreatedEvent в RabbitMQ.</li>
-  <li><b>NotificationService</b> ловит событие и "отправляет" уведомление клиенту.</li>
-</ol>
+- **Платформа:** .NET 10 (C#)
+- **Фреймворк:** ASP.NET Core Web API
+- **Базы данных:** PostgreSQL 17 + Entity Framework Core 10
+- **API Gateway:** YARP (Yet Another Reverse Proxy)
+- **Брокер сообщений:** RabbitMQ + MassTransit 8.4.1
+- **Аутентификация:** JWT (HS256), HttpOnly Cookies, Refresh Tokens
+- **Архитектурные паттерны:** Clean Architecture, CQRS (MediatR), Event-Driven Architecture, Repository/Unit of Work (через EF Core)
+- **Инфраструктура:** Docker, Docker Compose
 
-<h3>2. Завершение заказа</h3>
-<ol>
-  <li>Администратор отправляет POST /api/orders/{id}/complete.</li>
-  <li><b>OrderService</b> меняет статус на Done и публикует OrderCompletedEvent.</li>
-  <li><b>InventoryService</b> ловит событие и окончательно списывает зарезервированный товар со склада.</li>
-</ol>
+##  Ключевые бизнес-потоки
 
-<h3>3. Отмена заказа</h3>
-<ol>
-  <li>Клиент отправляет POST /api/orders/{id}/cancel.</li>
-  <li><b>OrderService</b> меняет статус на Cancelled и вызывает <b>InventoryService</b> для снятия резерва (ReleaseStock).</li>
-</ol>
+### 1. Создание заказа (Saga / Orchestration)
 
-<h2>🔐 Безопасность</h2>
-<ul>
-  <li><b>Аутентификация:</b> Реализована в AuthService с использованием JWT. Поддерживается передача токена как через заголовок Authorization: Bearer, так и через HttpOnly Cookie (для браузерных клиентов).</li>
-  <li><b>Авторизация:</b> Ролевая модель (User / Admin).</li>
-  <li><b>API Gateway:</b> Валидирует JWT на своей стороне. Если токен валиден, Gateway извлекает UserId и Roles и передает их внутренним сервисам через заголовки X-User-Id и X-User-Roles. Внутренние сервисы доверяют этим заголовкам (так как порты наружу не проброшены) и используют кастомный HeaderAuthenticationHandler.</li>
-</ul>
+1. Клиент отправляет POST /api/orders через Gateway.
+2. **OrderService** валидирует запрос и запрашивает актуальные данные товаров у **InventoryService**.
+3. **OrderService** вызывает **InventoryService** для резервирования остатков (ReserveStock).
+4. **OrderService** сохраняет заказ в БД и публикует событие OrderCreatedEvent в RabbitMQ.
+5. **NotificationService** ловит событие и "отправляет" уведомление клиенту.
 
-## 🚀 Запуск проекта
+### 2. Завершение заказа
+
+1. Администратор отправляет POST /api/orders/{id}/complete.
+2. **OrderService** меняет статус на Done и публикует OrderCompletedEvent.
+3. **InventoryService** ловит событие и окончательно списывает зарезервированный товар со склада.
+
+### 3. Отмена заказа
+
+1. Клиент отправляет POST /api/orders/{id}/cancel.
+2. **OrderService** меняет статус на Cancelled и вызывает **InventoryService** для снятия резерва (ReleaseStock).
+
+##  Безопасность
+
+- **Аутентификация:** Реализована в AuthService с использованием JWT. Поддерживается передача токена как через заголовок Authorization: Bearer, так и через HttpOnly Cookie (для браузерных клиентов).
+- **Авторизация:** Ролевая модель (User / Admin).
+- **API Gateway:** Валидирует JWT на своей стороне. Если токен валиден, Gateway извлекает UserId и Roles и передает их внутренним сервисам через заголовки X-User-Id и X-User-Roles. Внутренние сервисы доверяют этим заголовкам (так как порты наружу не проброшены) и используют кастомный HeaderAuthenticationHandler.
+
+##  Запуск проекта
 
 Существует два способа запуска проекта в зависимости от ваших целей.
 
