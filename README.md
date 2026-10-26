@@ -1,4 +1,12 @@
-Сервисы
+# Order Platform — Microservices Architecture
+
+Учебный проект, демонстрирующий полноценную микросервисную архитектуру с единой точкой входа, асинхронным обменом сообщениями, разграничением ролей и изолированными базами данных.
+
+## 📐 Архитектура
+
+Проект построен по принципам Domain-Driven Design (DDD) и Clean Architecture. Каждый сервис изолирован, имеет собственную базу данных и общается с другими сервисами либо синхронно (через HTTP), либо асинхронно (через брокер сообщений).
+
+# Сервисы
 Сервис	Порт (внутренний)	Зона ответственности	База данных
 ApiGateway	8080 (внешний)	Единая точка входа, маршрутизация (YARP), валидация JWT, агрегация Swagger UI.	—
 OrderService	8080	Управление заказами, оркестрация резервирования товаров, публикация событий.	order_db
@@ -9,19 +17,19 @@ RabbitMQ	5672 / 15672	Брокер сообщений (event-driven).	—
 🛠 Технологический стек
 Платформа: .NET 10 (C#)
 
-Фреймворк: ASP.NET Core Web API
+## Фреймворк: ASP.NET Core Web API
 
-Базы данных: PostgreSQL 17 + Entity Framework Core 10
+## Базы данных: PostgreSQL 17 + Entity Framework Core 10
 
-API Gateway: YARP (Yet Another Reverse Proxy)
+## API Gateway: YARP (Yet Another Reverse Proxy)
 
-Брокер сообщений: RabbitMQ + MassTransit 8.4.1
+## Брокер сообщений: RabbitMQ + MassTransit 8.4.1
 
-Аутентификация: JWT (HS256), HttpOnly Cookies, Refresh Tokens
+## Аутентификация: JWT (HS256), HttpOnly Cookies, Refresh Tokens
 
-Архитектурные паттерны: Clean Architecture, CQRS (MediatR), Event-Driven Architecture, Repository/Unit of Work (через EF Core)
+## Архитектурные паттерны: Clean Architecture, CQRS (MediatR), Event-Driven Architecture, Repository/Unit of Work (через EF Core)
 
-Инфраструктура: Docker, Docker Compose
+## Инфраструктура: Docker, Docker Compose
 
 🔄 Ключевые бизнес-потоки
 1. Создание заказа (Saga / Orchestration)
