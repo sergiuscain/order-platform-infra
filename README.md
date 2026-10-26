@@ -159,3 +159,7 @@ docker compose -f docker-compose.test.yml up --build -d</code></pre>
   <li><b>[ApiGateway]</b> — шлюз на YARP.</li>
   <li><b>[NotificationService]</b> — консьюмер событий.</li>
 </ul>
+
+# Скриншоты
+<img width="1834" height="1240" alt="{EA590EC0-6FB5-4007-B801-8693D018B15C}" src="https://github.com/user-attachments/assets/bca4a08e-5cb5-494a-8637-2ee29fb10832" />
+<img width="2560" height="1068" alt="{2DB82C3B-7CC3-4984-B1C7-F8A7CCE63BBB}" src="https://github.com/user-attachments/assets/a88f7cae-951a-4289-be3a-b17a6e35de95" />
