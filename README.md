@@ -132,8 +132,7 @@ docker compose -f docker-compose.yml up -d</code></pre>
 <p><b>Важно:</b> Все репозитории с сервисами должны быть склонированы в одну папку (рядом с order-platform-infra).</p>
 <pre><code># Перейдите в директорию инфраструктуры
 cd repos/order-platform-infra
-
-# Запустите сборку и поднятие контейнеров
+ Запустите сборку и поднятие контейнеров
 docker compose -f docker-compose.test.yml up --build -d</code></pre>
 
 <h3>Доступные интерфейсы после запуска:</h3>
@@ -145,8 +144,8 @@ docker compose -f docker-compose.test.yml up --build -d</code></pre>
 <h3>Тестовые учетные записи (Seed):</h3>
 <p>При первом запуске AuthService автоматически создает администратора:</p>
 <ul>
-  <li><b>Email:</b> admin@local</li>
-  <li><b>Пароль:</b> Admin123!</li>
+  <li><b>Email:</b> admin@admin</li>
+  <li><b>Пароль:</b> admin@admin</li>
 </ul>
 <p><i>(Вы можете зарегистрировать обычного пользователя через POST /auth/register в Swagger).</i></p>
 
