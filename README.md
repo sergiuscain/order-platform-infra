@@ -19,7 +19,7 @@ graph TD
 
 Учебный проект, демонстрирующий полноценную микросервисную архитектуру с единой точкой входа, асинхронным обменом сообщениями, разграничением ролей и изолированными базами данных.
 
-## 📐 Архитектура
+## Архитектура
 
 Проект построен по принципам Domain-Driven Design (DDD) и Clean Architecture. Каждый сервис изолирован, имеет собственную базу данных и общается с другими сервисами либо синхронно (через HTTP), либо асинхронно (через брокер сообщений).
 
@@ -34,7 +34,7 @@ graph TD
 | **NotificationService** | — | Асинхронная обработка событий (имитация отправки Email/Push). | — |
 | **RabbitMQ** | 5672 / 15672 | Брокер сообщений (event-driven). | — |
 
-##  Технологический стек
+## Технологический стек
 
 - **Платформа:** .NET 10 (C#)
 - **Фреймворк:** ASP.NET Core Web API
@@ -45,7 +45,7 @@ graph TD
 - **Архитектурные паттерны:** Clean Architecture, CQRS (MediatR), Event-Driven Architecture, Repository/Unit of Work (через EF Core)
 - **Инфраструктура:** Docker, Docker Compose
 
-##  Ключевые бизнес-потоки
+## Ключевые бизнес-потоки
 
 ### 1. Создание заказа (Saga / Orchestration)
 
@@ -66,25 +66,25 @@ graph TD
 1. Клиент отправляет POST /api/orders/{id}/cancel.
 2. **OrderService** меняет статус на Cancelled и вызывает **InventoryService** для снятия резерва (ReleaseStock).
 
-##  Безопасность
+## Безопасность
 
 - **Аутентификация:** Реализована в AuthService с использованием JWT. Поддерживается передача токена как через заголовок Authorization: Bearer, так и через HttpOnly Cookie (для браузерных клиентов).
 - **Авторизация:** Ролевая модель (User / Admin).
 - **API Gateway:** Валидирует JWT на своей стороне. Если токен валиден, Gateway извлекает UserId и Roles и передает их внутренним сервисам через заголовки X-User-Id и X-User-Roles. Внутренние сервисы доверяют этим заголовкам (так как порты наружу не проброшены) и используют кастомный HeaderAuthenticationHandler.
 
-##  Запуск проекта
+## Запуск проекта
 
 Существует два способа запуска проекта в зависимости от ваших целей.
 
 ### Вариант 1: Продакшн-подобный (из готовых образов)
 
-Используется, если образы уже собраны и опубликованы (например, в GitHub Container Registry). Базы данных и сервисы поднимаются из готовых образов.
+Базы данных и сервисы поднимаются из готовых образов.
 
 # Перейдите в директорию инфраструктуры
-cd repos/order-platform-infra
+```cd repos/order-platform-infra```
 
 Запустите контейнеры
-docker compose -f docker-compose.yml up -d
+```docker compose docker-compose.yml up -d```
 
 ### Вариант 2: Тестирование локальных изменений (сборка из Dockerfile)
 
@@ -93,9 +93,9 @@ docker compose -f docker-compose.yml up -d
 **Важно:** Все репозитории с сервисами должны быть склонированы в одну папку (рядом с order-platform-infra).
 
 # Перейдите в директорию инфраструктуры
-cd repos/order-platform-infra
+```cd repos/order-platform-infra```
  Запустите сборку и поднятие контейнеров
-docker compose -f docker-compose.test.yml up --build -d
+```docker compose -f docker-compose.test.yml up --build -d```
 
 ### Доступные интерфейсы после запуска:
 
@@ -113,7 +113,7 @@ docker compose -f docker-compose.test.yml up --build -d
 
 # Структура репозиториев
 ### Проект разделен на независимые репозитории (полирепозиторий):
-  - <b>[order-platform-infra] (текущий) — Docker Compose, конфигурация инфраструктуры, README.
+  - [order-platform-infra] (текущий) — Docker Compose, конфигурация инфраструктуры, README.
   - [OrderService]  — сервис заказов (Clean Architecture).
   - [InventoryService]  — сервис склада (Clean Architecture).
   - [AuthService]  — сервис аутентификации (Clean Architecture).
