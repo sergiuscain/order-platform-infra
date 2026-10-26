@@ -1,5 +1,5 @@
-mermaid
-```graph TD
+```mermaid
+graph TD
     Client[Клиент / Swagger UI] -->|HTTP| Gateway[API Gateway<br/>YARP + JWT]
     
     Gateway -->|/api/orders| OrderService[OrderService]
