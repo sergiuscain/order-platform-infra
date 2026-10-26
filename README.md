@@ -1,2 +1,24 @@
-# order-platform-infra
-Инфраструктура микро-сервисного проекта 
+# Order Platform — Microservices Architecture
+
+Учебный проект, демонстрирующий полноценную микросервисную архитектуру с единой точкой входа, асинхронным обменом сообщениями, разграничением ролей и изолированными базами данных.
+
+## 📐 Архитектура
+
+Проект построен по принципам Domain-Driven Design (DDD) и Clean Architecture. Каждый сервис изолирован, имеет собственную базу данных и общается с другими сервисами либо синхронно (через HTTP), либо асинхронно (через брокер сообщений).
+
+```mermaid
+graph TD
+    Client[Клиент / Swagger UI] -->|HTTP| Gateway[API Gateway<br/>YARP + JWT]
+    
+    Gateway -->|/api/orders| OrderService[OrderService]
+    Gateway -->|/api/products| InventoryService[InventoryService]
+    Gateway -->|/auth| AuthService[AuthService]
+    
+    OrderService -->|HTTP Reserve/Release| InventoryService
+    OrderService -->|Publish Events| RabbitMQ[RabbitMQ]
+    InventoryService -->|Consume Events| RabbitMQ
+    NotificationService[NotificationService] -->|Consume Events| RabbitMQ
+    
+    OrderService --> DB1[(PostgreSQL<br/>order_db)]
+    InventoryService --> DB2[(PostgreSQL<br/>inventory_db)]
+    AuthService --> DB3[(PostgreSQL<br/>auth_db)]
