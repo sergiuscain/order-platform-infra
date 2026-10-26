@@ -27,6 +27,7 @@ services:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: Host=postgres-inventory;Port=5432;Database=${INVENTORY_POSTGRES_DB};Username=${INVENTORY_POSTGRES_USER};Password=${INVENTORY_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+      RabbitMQ__Host: rabbitmq
     networks:
       - backend
 
@@ -55,13 +56,92 @@ services:
       postgres-order:
         condition: service_healthy
       inventory-api:
-        condition: service_started # OrderService зависит от Inventory для проверки остатков
+        condition: service_started
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__DefaultConnection: Host=postgres-order;Port=5432;Database=${ORDER_POSTGRES_DB};Username=${ORDER_POSTGRES_USER};Password=${ORDER_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
-      # URL для связи с InventoryService (по имени контейнера внутри сети Docker)
       InventoryService__BaseUrl: http://inventory-api:8080
+      RabbitMQ__Host: rabbitmq
+    networks:
+      - backend
+
+  # --- AUTH SERVICE ---
+  postgres-auth:
+    image: postgres:17-alpine
+    container_name: auth-postgres
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTH_POSTGRES_USER} -d ${AUTH_POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
+
+  auth-api:
+    image: ghcr.io/sergiuscain/authservice:latest
+    container_name: auth-api
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTP_PORTS: 8080
+      Seed__AdminEmail: ${ADMIN_EMAIL}
+      Seed__AdminPassword: ${ADMIN_PASSWORD}
+      ConnectionStrings__DefaultConnection: Host=postgres-auth;Port=5432;Database=${AUTH_POSTGRES_DB};Username=${AUTH_POSTGRES_USER};Password=${AUTH_POSTGRES_PASSWORD};GSS Encryption Mode=Disable
+    networks:
+      - backend
+
+  # --- NOTIFICATION SERVICE ---
+  notification-api:
+    image: ghcr.io/sergiuscain/notificationservice:latest
+    container_name: notification-api
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTP_PORTS: 8080
+      RabbitMQ__Host: rabbitmq
+    networks:
+      - backend
+
+  # --- INFRASTRUCTURE ---
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # --- API GATEWAY ---
+  api-gateway:
+    image: ghcr.io/sergiuscain/apigateway:latest
+    container_name: api-gateway
+    depends_on:
+      order-api:
+        condition: service_started
+      inventory-api:
+        condition: service_started
+      auth-api:
+        condition: service_started
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTP_PORTS: 8080
     ports:
       - "8080:8080"
     networks:
@@ -70,6 +150,7 @@ services:
 volumes:
   inventory_postgres_data:
   order_postgres_data:
+  auth_postgres_data:
 
 networks:
   backend:
