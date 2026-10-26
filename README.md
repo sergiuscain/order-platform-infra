@@ -149,16 +149,14 @@ docker compose -f docker-compose.test.yml up --build -d</code></pre>
 </ul>
 <p><i>(Вы можете зарегистрировать обычного пользователя через POST /auth/register в Swagger).</i></p>
 
-<h2>📂 Структура репозиториев</h2>
-<p>Проект разделен на независимые репозитории (полирепозиторий):</p>
-<ul>
-  <li><b>[order-platform-infra]</b> (текущий) — Docker Compose, конфигурация инфраструктуры, README.</li>
-  <li><b>[OrderService]</b> — сервис заказов (Clean Architecture).</li>
-  <li><b>[InventoryService]</b> — сервис склада (Clean Architecture).</li>
-  <li><b>[AuthService]</b> — сервис аутентификации (Clean Architecture).</li>
-  <li><b>[ApiGateway]</b> — шлюз на YARP.</li>
-  <li><b>[NotificationService]</b> — консьюмер событий.</li>
-</ul>
+# Структура репозиториев
+### Проект разделен на независимые репозитории (полирепозиторий):
+  - <b>[order-platform-infra] (текущий) — Docker Compose, конфигурация инфраструктуры, README.
+  - [OrderService]  — сервис заказов (Clean Architecture).
+  - [InventoryService]  — сервис склада (Clean Architecture).
+  - [AuthService]  — сервис аутентификации (Clean Architecture).
+  - [ApiGateway]  — шлюз на YARP.
+  - [NotificationService]  — консьюмер событий.
 
 # Скриншоты
 <img width="1834" height="1240" alt="{EA590EC0-6FB5-4007-B801-8693D018B15C}" src="https://github.com/user-attachments/assets/bca4a08e-5cb5-494a-8637-2ee29fb10832" />
