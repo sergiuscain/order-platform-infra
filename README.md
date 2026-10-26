@@ -141,13 +141,14 @@ docker compose -f docker-compose.test.yml up --build -d</code></pre>
   <li><b>RabbitMQ Management:</b> <a href="http://localhost:15672">http://localhost:15672</a> (логин: guest, пароль: guest)</li>
 </ul>
 
-<h3>Тестовые учетные записи (Seed):</h3>
-<p>При первом запуске AuthService автоматически создает администратора:</p>
-<ul>
-  <li><b>Email:</b> admin@admin</li>
-  <li><b>Пароль:</b> admin@admin</li>
-</ul>
-<p><i>(Вы можете зарегистрировать обычного пользователя через POST /auth/register в Swagger).</i></p>
+### Тестовые учетные записи (Seed):
+
+При первом запуске AuthService автоматически создает администратора:
+
+- **Email:** admin@admin
+- **Пароль:** admin@admin
+
+*(Вы можете зарегистрировать обычного пользователя через POST /auth/register в Swagger).*
 
 # Структура репозиториев
 ### Проект разделен на независимые репозитории (полирепозиторий):
