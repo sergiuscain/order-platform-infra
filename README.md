@@ -124,7 +124,7 @@ graph TD
 <pre><code># Перейдите в директорию инфраструктуры
 cd repos/order-platform-infra
 
-# Запустите контейнеры
+Запустите контейнеры
 docker compose -f docker-compose.yml up -d</code></pre>
 
 <h3>Вариант 2: Тестирование локальных изменений (сборка из Dockerfile)</h3>
